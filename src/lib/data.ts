@@ -1,4 +1,5 @@
 import "server-only";
+import { cacheLife, cacheTag } from "next/cache";
 import { all, get, run } from "./db";
 import { simulateLatency } from "./demo";
 import type { Pizza, PizzaSize, RatingSummary } from "./types";
@@ -32,6 +33,12 @@ const PIZZA_COLUMNS =
   "pizza_type_id AS id, name, category, ingredients AS description";
 
 export async function getPizzas(): Promise<Pizza[]> {
+  // "use cache" berpasangan dengan cacheLife dan cacheTag. Ini memberi tahu Next.js bahwa data yang diambil dari fungsi ini dapat disimpan di cache untuk meningkatkan kinerja.
+  "use cache";
+  // cacheLife gunanya untuk mengatur berapa lama data ini akan disimpan di cache. Dalam hal ini, data akan disimpan selama beberapa jam.
+  // cacheTag gunanya untuk memberi label pada data ini sehingga bisa diidentifikasi dan dikelompokkan dengan data lain yang memiliki tag yang sama. Dalam hal ini, data diberi tag "menu".
+  cacheLife("hours");
+  cacheTag("menu");
   await simulateLatency("read");
   const [rows, prices] = await Promise.all([
     all<PizzaRow>(`SELECT ${PIZZA_COLUMNS} FROM pizza_types ORDER BY name`),

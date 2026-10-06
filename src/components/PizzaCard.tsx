@@ -5,15 +5,14 @@ import Link from "next/link";
 import FavoriteButton from "@/components/FavoriteButton";
 import { formatPrice, lowestPrice } from "@/lib/format";
 import type { Pizza } from "@/lib/types";
+import { Suspense } from "react";
 
 export default function PizzaCard({
   pizza,
-  isFavorite,
-  onToggleFavorite,
+  favoriteIdsPromise,
 }: {
   pizza: Pizza;
-  isFavorite: boolean;
-  onToggleFavorite: () => void;
+  favoriteIdsPromise: Promise<string[]>;
 }) {
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
@@ -34,11 +33,17 @@ export default function PizzaCard({
           >
             {pizza.name}
           </Link>
-          <FavoriteButton
-            pizzaName={pizza.name}
-            isFavorite={isFavorite}
-            onToggle={onToggleFavorite}
-          />
+          <Suspense
+            fallback={
+              <span className="text-2xl leading-none text-black/20">♡</span>
+            }
+          >
+            <FavoriteButton
+              pizzaId={pizza.id}
+              pizzaName={pizza.name}
+              favoriteIdsPromise={favoriteIdsPromise}
+            />
+          </Suspense>
         </div>
         <p className="line-clamp-2 text-sm text-ink/70">{pizza.description}</p>
         <div className="mt-auto flex items-center justify-between pt-2 text-sm">
